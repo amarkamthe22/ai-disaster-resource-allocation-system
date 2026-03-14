@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="text-center mb-5">📊 Disaster Analytics Dashboard</h2>
+
+<div class="row g-4">
+
+<!-- Line Graph -->
+
+<div class="col-md-6">
+<div class="card shadow-lg p-4">
+<h5 class="text-center">Disaster Trends</h5>
+<canvas id="lineChart"></canvas>
+</div>
+</div>
+
+
+<!-- Bar Graph -->
+
+<div class="col-md-6">
+<div class="card shadow-lg p-4">
+<h5 class="text-center">Damage Comparison</h5>
+<canvas id="barChart"></canvas>
+</div>
+</div>
+
+
+<!-- Doughnut Graph -->
+
+<div class="col-md-6">
+<div class="card shadow-lg p-4">
+<h5 class="text-center">Disaster Types</h5>
+<canvas id="doughnutChart"></canvas>
+</div>
+</div>
+
+
+<!-- Radar Graph -->
+
+<div class="col-md-6">
+<div class="card shadow-lg p-4">
+<h5 class="text-center">Resource Usage</h5>
+<canvas id="radarChart"></canvas>
+</div>
+</div>
+
+</div>
+
+
+<!-- 🚀 Disaster History Table -->
+
+<div class="card mt-5 p-4 shadow">
+
+<h4 class="text-center mb-3">📋 Disaster History</h4>
+
+<table class="table table-striped">
+
+<thead>
+
+<tr>
+<th>Year</th>
+<th>Disaster Type</th>
+<th>Location</th>
+<th>Damage (Million $)</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>2020</td>
+<td>Flood</td>
+<td>Assam</td>
+<td>80</td>
+</tr>
+
+<tr>
+<td>2021</td>
+<td>Cyclone</td>
+<td>Odisha</td>
+<td>95</td>
+</tr>
+
+<tr>
+<td>2022</td>
+<td>Earthquake</td>
+<td>Uttarakhand</td>
+<td>60</td>
+</tr>
+
+<tr>
+<td>2023</td>
+<td>Flood</td>
+<td>Maharashtra</td>
+<td>75</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+/* Line Graph */
+
+new Chart(document.getElementById("lineChart"), {
+
+type: 'line',
+
+data: {
+
+labels: ['2019','2020','2021','2022','2023'],
+
+datasets: [{
+
+label: 'Disasters',
+
+data: [20,35,30,50,65],
+
+borderColor: '#3b82f6',
+
+backgroundColor: 'rgba(59,130,246,0.2)',
+
+fill:true,
+
+tension:0.4
+
+}]
+
+}
+
+});
+
+
+/* Bar Graph */
+
+new Chart(document.getElementById("barChart"), {
+
+type: 'bar',
+
+data: {
+
+labels: ['Flood','Earthquake','Storm','Drought'],
+
+datasets: [{
+
+label: 'Damage (Million $)',
+
+data: [120,80,95,60],
+
+backgroundColor: ['#2563eb','#ef4444','#f59e0b','#10b981']
+
+}]
+
+}
+
+});
+
+
+/* Doughnut Graph */
+
+new Chart(document.getElementById("doughnutChart"), {
+
+type: 'doughnut',
+
+data: {
+
+labels: ['Flood','Earthquake','Storm','Drought'],
+
+datasets: [{
+
+data:[45,15,25,15],
+
+backgroundColor:[
+
+'#3b82f6',
+'#ef4444',
+'#f59e0b',
+'#10b981'
+
+]
+
+}]
+
+}
+
+});
+
+
+/* Radar Graph */
+
+new Chart(document.getElementById("radarChart"), {
+
+type: 'radar',
+
+data: {
+
+labels: ['Shelters','Food','Rescue','Medical','Volunteers'],
+
+datasets: [{
+
+label:'Resources',
+
+data:[60,80,50,40,70],
+
+backgroundColor:'rgba(37,99,235,0.2)',
+
+borderColor:'#2563eb'
+
+}]
+
+}
+
+});
+
+</script>
+
+{% endblock %}

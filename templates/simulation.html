@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card p-4 shadow">
+
+<h2 class="text-center mb-4">🗺 Disaster Simulation Map</h2>
+
+<div id="map"></div>
+
+</div>
+
+
+<!-- Leaflet CSS -->
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- Leaflet JS -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+<script>
+
+/* Map Setup */
+
+var map = L.map('map').setView([22.9734, 78.6569], 5);
+
+
+/* Map Layer */
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+attribution: '© OpenStreetMap'
+
+}).addTo(map);
+
+
+
+/* Flood Marker */
+
+L.marker([19.0760,72.8777]).addTo(map)
+
+.bindPopup("🌊 Flood Risk Area - Mumbai");
+
+
+
+/* Cyclone Marker */
+
+L.marker([20.2961,85.8245]).addTo(map)
+
+.bindPopup("🌪 Cyclone Risk - Odisha");
+
+
+
+/* Earthquake Marker */
+
+L.marker([30.3165,78.0322]).addTo(map)
+
+.bindPopup("🌍 Earthquake Risk - Uttarakhand");
+
+
+
+/* Drought Marker */
+
+L.marker([23.2599,77.4126]).addTo(map)
+
+.bindPopup("🔥 Drought Risk - Madhya Pradesh");
+
+</script>
+
+{% endblock %}

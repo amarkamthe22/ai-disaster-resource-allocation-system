@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+
+<div class="hero">
+
+<h1>AI Disaster Resource Allocation System</h1>
+
+<p>
+Predict disaster resources using Machine Learning and historical disaster data
+</p>
+
+<a href="/prediction">
+<button class="start-btn">Start Prediction</button>
+</a>
+
+</div>
+
+
+<!-- ⭐ STATS SECTION -->
+
+<div class="row mt-5 text-center">
+
+<div class="col-md-4">
+<div class="card p-4 shadow">
+
+<h2 class="text-primary counter" data-target="120">0</h2>
+<p>Disasters Predicted</p>
+
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card p-4 shadow">
+
+<h2 class="text-success counter" data-target="4500">0</h2>
+<p>Resources Allocated</p>
+
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="card p-4 shadow">
+
+<h2 class="text-danger counter" data-target="25">0</h2>
+<p>Cities Monitored</p>
+
+</div>
+</div>
+
+</div>
+
+
+<!-- DISASTER ALERT PANEL -->
+
+<div class="alert-panel">
+
+<h4>🚨 Disaster Alerts</h4>
+
+<ul>
+
+<li>⚠ Flood Alert – Assam</li>
+<li>⚠ Cyclone Warning – Odisha</li>
+<li>⚠ Heatwave Alert – Maharashtra</li>
+
+</ul>
+
+</div>
+
+
+<!-- FEATURES -->
+
+<div class="row mt-5">
+
+<div class="col-md-4 d-flex justify-content-center">
+
+<div class="feature-card">
+
+<h4>🤖 Disaster Prediction</h4>
+
+<p>
+AI model predicts shelters, food packets and rescue teams needed.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="col-md-4 d-flex justify-content-center">
+
+<div class="feature-card">
+
+<h4>📊 Analytics Dashboard</h4>
+
+<p>
+Analyze disaster trends and visualize data insights.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="col-md-4 d-flex justify-content-center">
+
+<div class="feature-card">
+
+<h4>🧪 Scenario Simulation</h4>
+
+<p>
+Simulate disaster situations and evaluate response planning.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ⭐ COUNTER SCRIPT -->
+
+<script>
+
+const counters = document.querySelectorAll('.counter');
+
+counters.forEach(counter => {
+
+const updateCounter = () => {
+
+const target = +counter.getAttribute('data-target');
+const count = +counter.innerText;
+
+const increment = target / 100;
+
+if(count < target){
+
+counter.innerText = Math.ceil(count + increment);
+
+setTimeout(updateCounter,20);
+
+}else{
+
+counter.innerText = target;
+
+}
+
+};
+
+updateCounter();
+
+});
+
+</script>
+
+{% endblock %}
