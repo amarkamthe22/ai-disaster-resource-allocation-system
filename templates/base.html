@@ -1,118 +1,947 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="description" content="AI-Powered Disaster Management System for real-time prediction, simulation, and resource allocation">
+    <meta name="keywords" content="disaster management, AI, prediction, simulation, emergency response, resource allocation">
+    <meta name="author" content="AI Disaster Management System">
+    <meta name="theme-color" content="#667eea">
+    
+    <title>{% block title %}AI Disaster Management System{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --dark-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --info-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --text-light: #ffffff;
+            --text-dark: #2d3748;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.2);
+            --border-radius-sm: 10px;
+            --border-radius-md: 20px;
+            --border-radius-lg: 30px;
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
 
-<title>AI Disaster System</title>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+        html {
+            scroll-behavior: smooth;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            transition: background-color var(--transition-normal), color var(--transition-normal);
+            overflow-x: hidden;
+            position: relative;
+        }
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: floatBackground 20s ease-in-out infinite;
+        }
 
+        @keyframes floatBackground {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        /* Full HD container */
+        .container-fluid {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Premium Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-md);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all var(--transition-normal);
+        }
+
+        .navbar.scrolled {
+            padding: 0.7rem 2rem;
+            background: rgba(255, 255, 255, 0.98) !important;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            position: relative;
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            transition: all var(--transition-normal);
+        }
+
+        .navbar-brand i {
+            font-size: 2rem;
+            margin-right: 10px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .navbar-brand::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transition: width var(--transition-normal);
+            border-radius: 3px;
+        }
+
+        .navbar-brand:hover::after {
+            width: 100%;
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 600;
+            color: var(--text-dark) !important;
+            margin: 0 0.3rem;
+            padding: 0.7rem 1.3rem !important;
+            border-radius: 50px;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+        }
+
+        .navbar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width var(--transition-normal), height var(--transition-normal);
+        }
+
+        .navbar-nav .nav-link:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: var(--primary-gradient);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .navbar-nav .nav-link i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+            transition: transform var(--transition-normal);
+        }
+
+        .navbar-nav .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Active nav link */
+        .navbar-nav .nav-link.active {
+            background: var(--primary-gradient);
+            color: white !important;
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.5); opacity: 0.5; }
+        }
+
+        /* Premium Theme Toggle */
+        .theme-toggle {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left var(--transition-slow);
+        }
+
+        .theme-toggle:hover::before {
+            left: 100%;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            transition: transform var(--transition-normal);
+        }
+
+        .theme-toggle:hover i {
+            transform: rotate(180deg);
+        }
+
+        /* Premium Main Content */
+        .main-content {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-md);
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            min-height: calc(100vh - 200px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .main-content::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(118, 75, 162, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 30px); }
+        }
+
+        /* Premium Dark Mode */
+        body.dark-mode {
+            background: var(--dark-gradient);
+        }
+
+        body.dark-mode::before {
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        }
+
+        body.dark-mode .navbar {
+            background: rgba(26, 26, 46, 0.95) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .navbar.scrolled {
+            background: rgba(26, 26, 46, 0.98) !important;
+        }
+
+        body.dark-mode .navbar-brand {
+            background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        body.dark-mode .navbar-nav .nav-link {
+            color: #e2e8f0 !important;
+        }
+
+        body.dark-mode .navbar-nav .nav-link:hover {
+            background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+            color: white !important;
+        }
+
+        body.dark-mode .navbar-nav .nav-link.active {
+            background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+            color: white !important;
+        }
+
+        body.dark-mode .main-content {
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .main-content::before,
+        body.dark-mode .main-content::after {
+            background: radial-gradient(circle, rgba(168, 192, 255, 0.1) 0%, transparent 70%);
+        }
+
+        body.dark-mode .text-muted {
+            color: #a0aec0 !important;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Premium Footer */
+        .footer {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 30px 0;
+            margin-top: 40px;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+            transition: width var(--transition-normal);
+        }
+
+        .footer:hover::before {
+            width: 200px;
+        }
+
+        .footer .version {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: all var(--transition-normal);
+        }
+
+        .footer .version:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .footer {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        body.dark-mode .footer .version {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            transition: all var(--transition-normal);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+
+        /* Page Transition Animation */
+        @keyframes pageEnter {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .main-content {
+            animation: pageEnter 0.6s ease-out;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            transition: all var(--transition-normal);
+            z-index: 99;
+            border: 2px solid white;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .back-to-top.show {
+            display: flex;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Page Progress Bar */
+        .page-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: var(--primary-gradient);
+            z-index: 9999;
+            transition: width 0.3s ease;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Toast Notifications */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            border: none;
+            border-radius: 12px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container-fluid {
+                padding: 0 30px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .navbar-nav {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: var(--border-radius-md);
+                padding: 1rem;
+                margin-top: 1rem;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            body.dark-mode .navbar-nav {
+                background: rgba(26, 26, 46, 0.95);
+            }
+
+            .navbar-nav .nav-link {
+                margin: 0.2rem 0;
+                text-align: center;
+            }
+
+            .theme-toggle {
+                margin: 1rem 0 0;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 0 20px;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .navbar-brand i {
+                font-size: 1.6rem;
+            }
+
+            .main-content {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container-fluid {
+                padding: 0 15px;
+            }
+
+            .navbar-brand span {
+                font-size: 1rem;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <!-- Page Progress Bar -->
+    <div class="page-progress" id="pageProgress"></div>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-<div class="container">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNavbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot"></i>
+                <span class="d-none d-sm-inline">AI Disaster</span> Management
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i>
+                            <span class="d-lg-none ms-2">Home</span>
+                            <span class="d-none d-lg-inline">Home</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="d-lg-none ms-2">Dashboard</span>
+                            <span class="d-none d-lg-inline">Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/prediction">
+                            <i class="fas fa-brain"></i>
+                            <span class="d-lg-none ms-2">Prediction</span>
+                            <span class="d-none d-lg-inline">Prediction</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/simulation">
+                            <i class="fas fa-vr-cardboard"></i>
+                            <span class="d-lg-none ms-2">Simulation</span>
+                            <span class="d-none d-lg-inline">Simulation</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="d-lg-none ms-2">About</span>
+                            <span class="d-none d-lg-inline">About</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item ms-lg-3">
+                        <button onclick="toggleDarkMode()" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon"></i>
+                            <span class="d-none d-sm-inline">Dark Mode</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<a class="navbar-brand" href="/">AI Disaster System</a>
+    <!-- Main Content -->
+    <div class="container-fluid" style="padding-top: 100px;">
+        <div class="main-content" data-aos="fade-up">
+            <!-- Loading indicator -->
+            <div id="loadingIndicator" class="text-center d-none py-5">
+                <div class="loading-spinner"></div>
+                <p class="mt-3 text-muted">Loading...</p>
+            </div>
+            
+            <!-- Content block -->
+            {% block content %}{% endblock %}
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer text-center">
+            <p class="mb-0">
+                <i class="fas fa-copyright me-1"></i>
+                <span id="currentYear"></span> AI Disaster Management System. 
+                All rights reserved.
+                <span class="version" title="Current Version">v2.0.0</span>
+            </p>
+            <p class="mt-2 mb-0 small">
+                <i class="fas fa-shield-alt me-1"></i>
+                Making communities safer with AI
+            </p>
+        </footer>
+    </div>
 
-<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
-<span class="navbar-toggler-icon"></span>
-</button>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-<div class="collapse navbar-collapse" id="menu">
+    <!-- Main Script -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100,
+            easing: 'ease-in-out'
+        });
 
-<ul class="navbar-nav ms-auto">
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            const icon = themeToggle.querySelector('i');
+            const text = themeToggle.querySelector('span');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fas fa-sun';
+                if (text) text.textContent = 'Light Mode';
+                showToast('Dark mode activated', 'success');
+            } else {
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fas fa-moon';
+                if (text) text.textContent = 'Dark Mode';
+                showToast('Light mode activated', 'success');
+            }
+        }
+        
+        // Set current year in footer
+        function setCurrentYear() {
+            const yearElement = document.getElementById('currentYear');
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification alert alert-${type} alert-dismissible fade show`;
+            toast.setAttribute('role', 'alert');
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 
+                        type === 'danger' ? 'fa-times-circle' : 'fa-info-circle';
+            
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas ${icon} me-2 fa-lg"></i>
+                    <div class="flex-grow-1">${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // Scroll to top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Check for saved theme on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Set current year
+            setCurrentYear();
+            
+            // Apply saved theme
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (themeToggle) {
+                    const icon = themeToggle.querySelector('i');
+                    const text = themeToggle.querySelector('span');
+                    icon.className = 'fas fa-sun';
+                    if (text) text.textContent = 'Light Mode';
+                }
+            }
+            
+            // Add active class to current nav item
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPath || (currentPath === '/' && href === '/')) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Welcome toast
+            setTimeout(() => {
+                showToast('Welcome to AI Disaster Management System', 'info');
+            }, 1000);
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNavbar');
+            const backToTop = document.getElementById('backToTop');
+            
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+                backToTop.classList.add('show');
+            } else {
+                navbar.classList.remove('scrolled');
+                backToTop.classList.remove('show');
+            }
+            
+            // Page progress bar
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('pageProgress').style.width = scrolled + '%';
+        });
+        
+        // Show loading indicator during page transitions
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('.nav-link');
+            if (link && !link.classList.contains('theme-toggle') && !link.getAttribute('href').startsWith('#')) {
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.remove('d-none');
+                }
+            }
+        });
+        
+        // Hide loading indicator when page is fully loaded
+        window.addEventListener('load', function() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.classList.add('d-none');
+            }
+        });
+        
+        // Network status detection
+        window.addEventListener('online', function() {
+            showToast('Back online', 'success');
+        });
+        
+        window.addEventListener('offline', function() {
+            showToast('You are offline. Some features may be limited.', 'warning');
+        });
+        
+        // Error handling for failed resource loads
+        window.addEventListener('error', function(e) {
+            console.error('Resource failed to load:', e.target.src || e.target.href);
+            
+            // Only show warning for critical resources
+            if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+                if (e.target.src && e.target.src.includes('bootstrap')) {
+                    showToast('Bootstrap resources failed to load', 'warning');
+                }
+            }
+        }, true);
+        
+        // Handle visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('Page hidden');
+            } else {
+                console.log('Page visible');
+                // Refresh any time-sensitive data
+            }
+        });
 
-<li class="nav-item">
-<a class="nav-link" href="/">Home</a>
-</li>
+        // Add touch support for mobile
+        if ('ontouchstart' in window) {
+            document.body.classList.add('touch-device');
+        }
 
-<li class="nav-item">
-<a class="nav-link" href="/dashboard">Dashboard</a>
-</li>
+        // Prevent multiple rapid clicks
+        let clickTimer = null;
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.nav-link') || e.target.closest('.theme-toggle')) {
+                if (clickTimer) {
+                    e.preventDefault();
+                    return;
+                }
+                clickTimer = setTimeout(() => {
+                    clickTimer = null;
+                }, 500);
+            }
+        });
+    </script>
 
-<li class="nav-item">
-<a class="nav-link" href="/prediction">Prediction</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="/simulation">Simulation</a>
-</li>
-
-<li class="nav-item">
-<a class="nav-link" href="/about">About</a>
-</li>
-
-<!-- 🌙 Dark Mode Button -->
-
-<li class="nav-item ms-3">
-
-<button onclick="toggleDarkMode()" class="btn btn-sm btn-light">
-
-🌙 Dark Mode
-
-</button>
-
-</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</nav>
-
-<div class="container mt-4">
-
-{% block content %}
-
-{% endblock %}
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-<!-- 🌙 Dark Mode Script -->
-<script>
-
-function toggleDarkMode(){
-
-document.body.classList.toggle("dark-mode");
-
-if(document.body.classList.contains("dark-mode")){
-
-localStorage.setItem("theme","dark");
-
-}
-else{
-
-localStorage.setItem("theme","light");
-
-}
-
-}
-
-
-// page load झाल्यावर theme check
-
-window.onload = function(){
-
-let theme = localStorage.getItem("theme");
-
-if(theme === "dark"){
-
-document.body.classList.add("dark-mode");
-
-}
-
-}
-
-</script>
+    <!-- Page-specific scripts block -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

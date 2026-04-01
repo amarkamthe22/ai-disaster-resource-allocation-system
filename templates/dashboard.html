@@ -1,225 +1,809 @@
 {% extends "base.html" %}
 
+{% block title %}Analytics Dashboard - AI Disaster Management{% endblock %}
+
 {% block content %}
+<div class="container-fluid px-4">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-header text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-chart-pie me-3 text-primary"></i>
+                    Disaster Analytics Dashboard
+                </h1>
+                <p class="lead text-muted">Real-time insights and predictive analytics for disaster management</p>
+            </div>
+        </div>
+    </div>
 
-<h2 class="text-center mb-5">📊 Disaster Analytics Dashboard</h2>
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card bg-primary-soft p-4 rounded-4 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-primary text-white rounded-circle me-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-1">Total Disasters</p>
+                        <h2 class="mb-0 fw-bold">127</h2>
+                        <small class="text-success"><i class="fas fa-arrow-up me-1"></i>+12% this year</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card bg-success-soft p-4 rounded-4 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-success text-white rounded-circle me-3">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-1">People Affected</p>
+                        <h2 class="mb-0 fw-bold">15.2M</h2>
+                        <small class="text-danger"><i class="fas fa-arrow-down me-1"></i>-5% from last year</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card bg-warning-soft p-4 rounded-4 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-warning text-white rounded-circle me-3">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-1">Total Damage</p>
+                        <h2 class="mb-0 fw-bold">$410M</h2>
+                        <small class="text-warning">Estimated losses</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="kpi-card bg-info-soft p-4 rounded-4 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-info text-white rounded-circle me-3">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-1">Response Time</p>
+                        <h2 class="mb-0 fw-bold">4.2h</h2>
+                        <small class="text-success">Average response</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="row g-4">
+    <!-- Chart Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <span class="fw-semibold me-2"><i class="fas fa-filter me-2"></i>Filter by:</span>
+                    <button class="btn btn-outline-primary btn-sm active" data-filter="all">All Time</button>
+                    <button class="btn btn-outline-primary btn-sm" data-filter="year">This Year</button>
+                    <button class="btn btn-outline-primary btn-sm" data-filter="month">This Month</button>
+                    <button class="btn btn-outline-primary btn-sm" data-filter="week">This Week</button>
+                    <div class="ms-auto">
+                        <button class="btn btn-primary btn-sm" onclick="refreshCharts()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<!-- Line Graph -->
+    <!-- Charts Row 1 -->
+    <div class="row g-4 mb-4">
+        <!-- Line Graph - Disaster Trends -->
+        <div class="col-lg-6">
+            <div class="chart-card card border-0 shadow-lg h-100">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>
+                        Disaster Trends (2019-2024)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                    <div class="chart-footer mt-3 text-center text-muted small">
+                        <span class="me-3"><i class="fas fa-circle text-primary me-1"></i>Floods</span>
+                        <span class="me-3"><i class="fas fa-circle text-danger me-1"></i>Earthquakes</span>
+                        <span class="me-3"><i class="fas fa-circle text-warning me-1"></i>Storms</span>
+                        <span><i class="fas fa-circle text-success me-1"></i>Droughts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="col-md-6">
-<div class="card shadow-lg p-4">
-<h5 class="text-center">Disaster Trends</h5>
-<canvas id="lineChart"></canvas>
+        <!-- Bar Graph - Damage Comparison -->
+        <div class="col-lg-6">
+            <div class="chart-card card border-0 shadow-lg h-100">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2 text-success"></i>
+                        Damage Comparison by Disaster Type
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row g-4 mb-4">
+        <!-- Doughnut Graph - Disaster Distribution -->
+        <div class="col-lg-6">
+            <div class="chart-card card border-0 shadow-lg h-100">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2 text-warning"></i>
+                        Disaster Type Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Radar Graph - Resource Allocation -->
+        <div class="col-lg-6">
+            <div class="chart-card card border-0 shadow-lg h-100">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-radar me-2 text-info"></i>
+                        Resource Allocation Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Stacked Bar Chart -->
+        <div class="col-lg-6">
+            <div class="chart-card card border-0 shadow-lg h-100">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2 text-purple"></i>
+                        Regional Impact Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="stackedBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Polar Area Chart -->
+        <div class="col-lg-6">
+            <div class="chart-card card border-0 shadow-lg h-100">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-area me-2 text-danger"></i>
+                        Monthly Incident Patterns
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="polarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disaster History Table -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent pt-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-history me-2 text-primary"></i>
+                            Disaster History Records
+                        </h4>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="exportTableToCSV()">
+                                <i class="fas fa-download me-2"></i>Export CSV
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="printTable()">
+                                <i class="fas fa-print me-2"></i>Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover datatable" id="disasterTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Disaster Type</th>
+                                    <th>Location</th>
+                                    <th>District</th>
+                                    <th>Affected Population</th>
+                                    <th>Damage (Million $)</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2020</td>
+                                    <td><span class="badge bg-primary">Flood</span></td>
+                                    <td>Assam</td>
+                                    <td>Barpeta</td>
+                                    <td>450,000</td>
+                                    <td class="fw-bold text-danger">$80M</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-success">Resolved</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(2020)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2021</td>
+                                    <td><span class="badge bg-warning text-dark">Cyclone</span></td>
+                                    <td>Odisha</td>
+                                    <td>Puri</td>
+                                    <td>620,000</td>
+                                    <td class="fw-bold text-danger">$95M</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-success">Resolved</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(2021)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2022</td>
+                                    <td><span class="badge bg-danger">Earthquake</span></td>
+                                    <td>Uttarakhand</td>
+                                    <td>Chamoli</td>
+                                    <td>180,000</td>
+                                    <td class="fw-bold text-danger">$60M</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td><span class="badge bg-warning">Ongoing</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(2022)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2023</td>
+                                    <td><span class="badge bg-primary">Flood</span></td>
+                                    <td>Maharashtra</td>
+                                    <td>Kolhapur</td>
+                                    <td>320,000</td>
+                                    <td class="fw-bold text-danger">$75M</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td><span class="badge bg-info">In Progress</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(2023)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024</td>
+                                    <td><span class="badge bg-success">Drought</span></td>
+                                    <td>Karnataka</td>
+                                    <td>Bijapur</td>
+                                    <td>280,000</td>
+                                    <td class="fw-bold text-danger">$45M</td>
+                                    <td><span class="badge bg-success">Low</span></td>
+                                    <td><span class="badge bg-info">Monitoring</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(2024)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Table Pagination -->
+                    <nav aria-label="Table navigation" class="mt-3">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-4 mt-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Most Common Disaster</h6>
+                            <h3 class="text-white">Floods</h3>
+                            <p class="text-white-50 mb-0">45% of total incidents</p>
+                        </div>
+                        <i class="fas fa-water fa-3x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Most Affected Region</h6>
+                            <h3 class="text-white">Odisha</h3>
+                            <p class="text-white-50 mb-0">28% of total damage</p>
+                        </div>
+                        <i class="fas fa-map-marker-alt fa-3x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Average Response Time</h6>
+                            <h3 class="text-white">4.2 Hours</h3>
+                            <p class="text-white-50 mb-0">15% faster than last year</p>
+                        </div>
+                        <i class="fas fa-clock fa-3x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
 
-
-<!-- Bar Graph -->
-
-<div class="col-md-6">
-<div class="card shadow-lg p-4">
-<h5 class="text-center">Damage Comparison</h5>
-<canvas id="barChart"></canvas>
-</div>
-</div>
-
-
-<!-- Doughnut Graph -->
-
-<div class="col-md-6">
-<div class="card shadow-lg p-4">
-<h5 class="text-center">Disaster Types</h5>
-<canvas id="doughnutChart"></canvas>
-</div>
-</div>
-
-
-<!-- Radar Graph -->
-
-<div class="col-md-6">
-<div class="card shadow-lg p-4">
-<h5 class="text-center">Resource Usage</h5>
-<canvas id="radarChart"></canvas>
-</div>
-</div>
-
-</div>
-
-
-<!-- 🚀 Disaster History Table -->
-
-<div class="card mt-5 p-4 shadow">
-
-<h4 class="text-center mb-3">📋 Disaster History</h4>
-
-<table class="table table-striped">
-
-<thead>
-
-<tr>
-<th>Year</th>
-<th>Disaster Type</th>
-<th>Location</th>
-<th>Damage (Million $)</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-<td>2020</td>
-<td>Flood</td>
-<td>Assam</td>
-<td>80</td>
-</tr>
-
-<tr>
-<td>2021</td>
-<td>Cyclone</td>
-<td>Odisha</td>
-<td>95</td>
-</tr>
-
-<tr>
-<td>2022</td>
-<td>Earthquake</td>
-<td>Uttarakhand</td>
-<td>60</td>
-</tr>
-
-<tr>
-<td>2023</td>
-<td>Flood</td>
-<td>Maharashtra</td>
-<td>75</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-
+<!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Line Chart - Enhanced with multiple datasets
+        new Chart(document.getElementById("lineChart"), {
+            type: 'line',
+            data: {
+                labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: 'Floods',
+                        data: [20, 35, 30, 45, 50, 65],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59,130,246,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Earthquakes',
+                        data: [15, 18, 22, 25, 28, 35],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239,68,68,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Storms',
+                        data: [12, 20, 25, 30, 35, 42],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245,158,11,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
 
-/* Line Graph */
+        // Bar Chart - Enhanced
+        new Chart(document.getElementById("barChart"), {
+            type: 'bar',
+            data: {
+                labels: ['Flood', 'Earthquake', 'Storm', 'Drought', 'Cyclone', 'Landslide'],
+                datasets: [{
+                    label: 'Damage (Million $)',
+                    data: [120, 80, 95, 60, 110, 45],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#ef4444',
+                        '#f59e0b',
+                        '#10b981',
+                        '#8b5cf6',
+                        '#ec4899'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                }
+            }
+        });
 
-new Chart(document.getElementById("lineChart"), {
+        // Doughnut Chart - Enhanced
+        new Chart(document.getElementById("doughnutChart"), {
+            type: 'doughnut',
+            data: {
+                labels: ['Floods (45%)', 'Earthquakes (15%)', 'Storms (25%)', 'Droughts (15%)'],
+                datasets: [{
+                    data: [45, 15, 25, 15],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#ef4444',
+                        '#f59e0b',
+                        '#10b981'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
 
-type: 'line',
+        // Radar Chart - Enhanced
+        new Chart(document.getElementById("radarChart"), {
+            type: 'radar',
+            data: {
+                labels: ['Shelters', 'Food Packets', 'Rescue Teams', 'Medical Kits', 'Volunteers', 'Transport'],
+                datasets: [{
+                    label: 'Current Resources',
+                    data: [60, 80, 50, 70, 65, 45],
+                    backgroundColor: 'rgba(59,130,246,0.2)',
+                    borderColor: '#3b82f6',
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                }
+            }
+        });
 
-data: {
+        // Stacked Bar Chart
+        new Chart(document.getElementById("stackedBarChart"), {
+            type: 'bar',
+            data: {
+                labels: ['North', 'South', 'East', 'West', 'Central'],
+                datasets: [
+                    {
+                        label: 'Floods',
+                        data: [25, 35, 45, 30, 40],
+                        backgroundColor: '#3b82f6'
+                    },
+                    {
+                        label: 'Earthquakes',
+                        data: [15, 10, 20, 25, 15],
+                        backgroundColor: '#ef4444'
+                    },
+                    {
+                        label: 'Storms',
+                        data: [30, 25, 15, 35, 20],
+                        backgroundColor: '#f59e0b'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
 
-labels: ['2019','2020','2021','2022','2023'],
+        // Polar Area Chart
+        new Chart(document.getElementById("polarChart"), {
+            type: 'polarArea',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    data: [25, 30, 45, 35, 40, 50],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#ef4444',
+                        '#f59e0b',
+                        '#10b981',
+                        '#8b5cf6',
+                        '#ec4899'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    });
 
-datasets: [{
+    // Utility Functions
+    function refreshCharts() {
+        // Add loading animation
+        document.querySelectorAll('.chart-card').forEach(card => {
+            card.style.opacity = '0.5';
+        });
+        
+        // Simulate refresh
+        setTimeout(() => {
+            document.querySelectorAll('.chart-card').forEach(card => {
+                card.style.opacity = '1';
+            });
+            alert('Charts refreshed with latest data!');
+        }, 1000);
+    }
 
-label: 'Disasters',
+    function exportTableToCSV() {
+        const table = document.getElementById('disasterTable');
+        const rows = table.querySelectorAll('tr');
+        let csv = [];
+        
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('th, td');
+            const rowData = [];
+            cells.forEach(cell => {
+                rowData.push('"' + cell.innerText.replace(/"/g, '""') + '"');
+            });
+            csv.push(rowData.join(','));
+        });
+        
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'disaster_history.csv';
+        a.click();
+    }
 
-data: [20,35,30,50,65],
+    function printTable() {
+        window.print();
+    }
 
-borderColor: '#3b82f6',
+    function viewDetails(year) {
+        alert(`Viewing details for disaster in ${year}`);
+        // Implement modal or redirect to details page
+    }
 
-backgroundColor: 'rgba(59,130,246,0.2)',
-
-fill:true,
-
-tension:0.4
-
-}]
-
-}
-
-});
-
-
-/* Bar Graph */
-
-new Chart(document.getElementById("barChart"), {
-
-type: 'bar',
-
-data: {
-
-labels: ['Flood','Earthquake','Storm','Drought'],
-
-datasets: [{
-
-label: 'Damage (Million $)',
-
-data: [120,80,95,60],
-
-backgroundColor: ['#2563eb','#ef4444','#f59e0b','#10b981']
-
-}]
-
-}
-
-});
-
-
-/* Doughnut Graph */
-
-new Chart(document.getElementById("doughnutChart"), {
-
-type: 'doughnut',
-
-data: {
-
-labels: ['Flood','Earthquake','Storm','Drought'],
-
-datasets: [{
-
-data:[45,15,25,15],
-
-backgroundColor:[
-
-'#3b82f6',
-'#ef4444',
-'#f59e0b',
-'#10b981'
-
-]
-
-}]
-
-}
-
-});
-
-
-/* Radar Graph */
-
-new Chart(document.getElementById("radarChart"), {
-
-type: 'radar',
-
-data: {
-
-labels: ['Shelters','Food','Rescue','Medical','Volunteers'],
-
-datasets: [{
-
-label:'Resources',
-
-data:[60,80,50,40,70],
-
-backgroundColor:'rgba(37,99,235,0.2)',
-
-borderColor:'#2563eb'
-
-}]
-
-}
-
-});
-
+    // Table search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'form-control form-control-sm';
+        searchInput.placeholder = 'Search records...';
+        searchInput.style.width = '200px';
+        
+        const headerActions = document.querySelector('.card-header .d-flex');
+        headerActions.insertBefore(searchInput, headerActions.children[1]);
+        
+        searchInput.addEventListener('keyup', function() {
+            const value = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#disasterTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(value) ? '' : 'none';
+            });
+        });
+    });
 </script>
 
+<!-- Custom Styles -->
+<style>
+    .kpi-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important;
+    }
+    
+    .kpi-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+    
+    .chart-card {
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+    }
+    
+    .bg-primary-soft {
+        background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05));
+    }
+    
+    .bg-success-soft {
+        background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05));
+    }
+    
+    .bg-warning-soft {
+        background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05));
+    }
+    
+    .bg-info-soft {
+        background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.05));
+    }
+    
+    .bg-purple {
+        background-color: #8b5cf6 !important;
+    }
+    
+    .text-purple {
+        color: #8b5cf6 !important;
+    }
+    
+    .datatable tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .datatable tbody tr:hover {
+        background-color: rgba(59,130,246,0.05);
+        transform: scale(1.01);
+    }
+    
+    .badge {
+        padding: 0.5em 1em;
+        font-weight: 500;
+    }
+    
+    /* Dark mode adjustments */
+    body.dark-mode .kpi-card {
+        background: rgba(26, 26, 46, 0.9) !important;
+        border-color: rgba(255,255,255,0.1);
+    }
+    
+    body.dark-mode .chart-card {
+        background: rgba(26, 26, 46, 0.95);
+    }
+    
+    body.dark-mode .table {
+        color: #e2e8f0;
+    }
+    
+    body.dark-mode .table-light {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .kpi-card {
+            margin-bottom: 15px;
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+    }
+</style>
 {% endblock %}

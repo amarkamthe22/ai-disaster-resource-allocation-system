@@ -1,189 +1,578 @@
 {% extends "base.html" %}
 
+{% block title %}Disaster Resource Prediction - AI Disaster Management{% endblock %}
+
 {% block content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <h2 class="display-5 fw-bold">
+                    <i class="fas fa-robot me-3 text-primary"></i>
+                    AI Disaster Resource Prediction
+                </h2>
+                <p class="text-muted">Advanced machine learning powered resource allocation and risk assessment</p>
+            </div>
+        </div>
+    </div>
 
-<div class="container">
+    <div class="row g-4">
+        <!-- Prediction Form Column -->
+        <div class="col-lg-5">
+            <div class="card h-100 border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2 text-primary"></i>
+                        Input Parameters
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="predictionForm" class="needs-validation" novalidate>
+                        <!-- Population Input -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-users me-2 text-info"></i>Population
+                            </label>
+                            <input type="number" name="population" class="form-control form-control-lg" 
+                                   placeholder="Enter population" required min="1" step="1">
+                            <div class="invalid-feedback">Please enter a valid population number.</div>
+                        </div>
 
-<h2 class="mb-4">Disaster Resource Prediction</h2>
+                        <!-- District Select -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>District
+                            </label>
+                            <select name="district" class="form-select form-select-lg" required>
+                                <option value="" disabled selected>Select district</option>
+                                <option value="1">📍 Pune</option>
+                                <option value="2">📍 Mumbai</option>
+                                <option value="3">📍 Nagpur</option>
+                                <option value="4">📍 Nashik</option>
+                                <option value="5">📍 Aurangabad</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a district.</div>
+                        </div>
 
-<div class="card shadow p-4">
+                        <!-- Disaster Type Select -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Disaster Type
+                            </label>
+                            <select name="disaster_type" class="form-select form-select-lg" required>
+                                <option value="" disabled selected>Select disaster type</option>
+                                <option value="1">🌊 Flood</option>
+                                <option value="2">🏢 Earthquake</option>
+                                <option value="3">💨 Storm</option>
+                                <option value="4">🌵 Drought</option>
+                                <option value="5">🦠 Epidemic</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a disaster type.</div>
+                        </div>
 
-<form method="POST">
+                        <!-- Rainfall Input -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-cloud-rain me-2 text-info"></i>Rainfall (mm)
+                            </label>
+                            <input type="number" name="rainfall" class="form-control form-control-lg" 
+                                   placeholder="Enter rainfall in mm" required min="0" step="0.1">
+                            <div class="invalid-feedback">Please enter valid rainfall data.</div>
+                        </div>
 
-<div class="mb-3">
-<label class="form-label">Population</label>
-<input type="number" name="population" class="form-control" required>
+                        <!-- Damage Input -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-rupee-sign me-2 text-success"></i>Total Damage (in Lakhs)
+                            </label>
+                            <input type="number" name="damage" class="form-control form-control-lg" 
+                                   placeholder="Enter damage amount" required min="0" step="0.01">
+                            <div class="invalid-feedback">Please enter valid damage amount.</div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                            <i class="fas fa-magic me-2"></i>
+                            Predict Resources
+                            <span class="spinner-border spinner-border-sm d-none ms-2" id="submitSpinner" role="status"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Column -->
+        <div class="col-lg-7">
+            {% if prediction is not none %}
+            <!-- Prediction Results Card -->
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-header bg-transparent border-0 pt-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>
+                        AI Prediction Results
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Shelters Card -->
+                        <div class="col-md-6">
+                            <div class="stat-card bg-primary-soft p-4 rounded-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-primary text-white rounded-circle me-3">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Relief Shelters</p>
+                                        <h3 class="mb-0 fw-bold">{{ prediction.shelters }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Food Packets Card -->
+                        <div class="col-md-6">
+                            <div class="stat-card bg-success-soft p-4 rounded-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-success text-white rounded-circle me-3">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Food Packets</p>
+                                        <h3 class="mb-0 fw-bold">{{ prediction.food }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rescue Teams Card -->
+                        <div class="col-md-6">
+                            <div class="stat-card bg-warning-soft p-4 rounded-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-warning text-white rounded-circle me-3">
+                                        <i class="fas fa-truck"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Rescue Teams</p>
+                                        <h3 class="mb-0 fw-bold">{{ prediction.rescue }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Casualties Card -->
+                        <div class="col-md-6">
+                            <div class="stat-card bg-danger-soft p-4 rounded-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-danger text-white rounded-circle me-3">
+                                        <i class="fas fa-heartbeat"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Est. Casualties</p>
+                                        <h3 class="mb-0 fw-bold">{{ prediction.deaths }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Level Card -->
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Disaster Risk Assessment
+                    </h4>
+                    
+                    {% set risk_color = {
+                        'High': 'danger',
+                        'Medium': 'warning',
+                        'Low': 'success'
+                    } %}
+                    
+                    {% set risk_icon = {
+                        'High': '🔴',
+                        'Medium': '🟠',
+                        'Low': '🟢'
+                    } %}
+                    
+                    <div class="risk-level text-center p-4 rounded-4 bg-{{ risk_color[risk] }}-soft">
+                        <div class="display-1 mb-3">{{ risk_icon[risk] }}</div>
+                        <h2 class="text-{{ risk_color[risk] }} fw-bold">{{ risk }} RISK</h2>
+                        
+                        <!-- Risk Meter -->
+                        <div class="risk-meter mt-4">
+                            <div class="progress" style="height: 10px;">
+                                {% if risk == 'High' %}
+                                <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                {% elif risk == 'Medium' %}
+                                <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                {% else %}
+                                <div class="progress-bar bg-success" style="width: 30%"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Risk Description -->
+                        <p class="mt-3 mb-0">
+                            {% if risk == 'High' %}
+                            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                            Immediate evacuation recommended. High probability of casualties.
+                            {% elif risk == 'Medium' %}
+                            <i class="fas fa-exclamation-circle me-2 text-warning"></i>
+                            Prepare for emergency response. Monitor situation closely.
+                            {% else %}
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Low risk situation. Standard precautions recommended.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Visualization Card -->
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-4">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Resource Allocation Visualization
+                    </h4>
+                    
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="resultChart"></canvas>
+                    </div>
+                    
+                    <!-- Resource Summary -->
+                    <div class="resource-summary mt-4">
+                        <h5 class="mb-3">Resource Distribution Summary</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Resource Type</th>
+                                        <th>Quantity</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fas fa-home me-2 text-primary"></i>Shelters</td>
+                                        <td class="fw-bold">{{ prediction.shelters }}</td>
+                                        {% set total = prediction.shelters + prediction.food + prediction.rescue %}
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-primary" style="width: {{ (prediction.shelters / total * 100)|round }}%"></div>
+                                            </div>
+                                            <small class="ms-2">{{ (prediction.shelters / total * 100)|round }}%</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-utensils me-2 text-success"></i>Food Packets</td>
+                                        <td class="fw-bold">{{ prediction.food }}</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-success" style="width: {{ (prediction.food / total * 100)|round }}%"></div>
+                                            </div>
+                                            <small class="ms-2">{{ (prediction.food / total * 100)|round }}%</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-truck me-2 text-warning"></i>Rescue Teams</td>
+                                        <td class="fw-bold">{{ prediction.rescue }}</td>
+                                        <td>
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-warning" style="width: {{ (prediction.rescue / total * 100)|round }}%"></div>
+                                            </div>
+                                            <small class="ms-2">{{ (prediction.rescue / total * 100)|round }}%</small>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Report Card -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4 text-center">
+                    <h5 class="mb-3">Download Detailed Report</h5>
+                    <p class="text-muted mb-4">Get a comprehensive PDF report with all predictions and recommendations</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/download_report" class="btn btn-success btn-lg px-5" onclick="showDownloadAlert()">
+                            <i class="fas fa-file-pdf me-2"></i>
+                            Download Report (PDF)
+                        </a>
+                        <button class="btn btn-outline-primary btn-lg px-5" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>
+                            Print Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="card border-0 shadow-lg h-100">
+                <div class="card-body text-center p-5">
+                    <div class="empty-state">
+                        <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
+                        <h4>No Predictions Yet</h4>
+                        <p class="text-muted">Fill the form to get AI-powered resource predictions for disaster management.</p>
+                        <img src="https://cdn-icons-png.flaticon.com/512/6195/6195700.png" alt="Prediction illustration" class="img-fluid mt-3" style="max-width: 200px; opacity: 0.7;">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
-<div class="mb-3">
-<label class="form-label">District</label>
+<!-- Additional Styles -->
+<style>
+    /* Custom styles for prediction page */
+    .stat-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .bg-primary-soft {
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05));
+    }
+    
+    .bg-success-soft {
+        background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), rgba(25, 135, 84, 0.05));
+    }
+    
+    .bg-warning-soft {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+    }
+    
+    .bg-danger-soft {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+    }
+    
+    .risk-level {
+        transition: all 0.3s ease;
+        border: 2px solid rgba(0,0,0,0.05);
+    }
+    
+    .risk-level:hover {
+        transform: scale(1.02);
+    }
+    
+    .form-control-lg, .form-select-lg {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control-lg:focus, .form-select-lg:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 12px;
+        padding: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        border-radius: 12px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(25, 135, 84, 0.4);
+    }
+    
+    .card {
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+    }
+    
+    body.dark-mode .card {
+        background: rgba(26, 26, 46, 0.95);
+    }
+    
+    .empty-state {
+        animation: fadeIn 1s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .display-5 {
+            font-size: 2rem;
+        }
+        
+        .stat-card {
+            margin-bottom: 15px;
+        }
+        
+        .btn-lg {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+    }
+</style>
 
-<select name="district" class="form-control">
-<option value="1">Pune</option>
-<option value="2">Mumbai</option>
-<option value="3">Nagpur</option>
-<option value="4">Nashik</option>
-</select>
-
-</div>
-
-<div class="mb-3">
-<label class="form-label">Disaster Type</label>
-
-<select name="disaster_type" class="form-control">
-<option value="1">Flood</option>
-<option value="2">Earthquake</option>
-<option value="3">Storm</option>
-<option value="4">Drought</option>
-<option value="5">Epidemic</option>
-</select>
-
-</div>
-
-<div class="mb-3">
-<label class="form-label">Rainfall (mm)</label>
-<input type="number" name="rainfall" class="form-control" required>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Total Damage</label>
-<input type="number" name="damage" class="form-control" required>
-</div>
-
-<button type="submit" class="btn btn-primary">
-Predict Resources
-</button>
-
-</form>
-
-</div>
-
-
+<!-- Chart.js Script -->
 {% if prediction is not none %}
-
-<!-- Prediction Result -->
-
-<div class="card mt-4 p-4 shadow bg-light">
-
-<h4>📊 AI Predicted Disaster Resources</h4>
-
-<ul class="list-group mt-3">
-
-<li class="list-group-item">
-🏠 Relief Shelters Needed : <b>{{ prediction.shelters }}</b>
-</li>
-
-<li class="list-group-item">
-🍞 Food Packets Required : <b>{{ prediction.food }}</b>
-</li>
-
-<li class="list-group-item">
-🚑 Rescue Teams Needed : <b>{{ prediction.rescue }}</b>
-</li>
-
-<li class="list-group-item">
-⚠ Estimated Casualties : <b>{{ prediction.deaths }}</b>
-</li>
-
-</ul>
-
-</div>
-
-
-<!-- Risk Level -->
-
-<div class="card mt-4 p-4 shadow text-center">
-
-<h4>🚨 Disaster Risk Level</h4>
-
-{% if risk == "High" %}
-
-<h2 style="color:red;">🔴 HIGH RISK</h2>
-
-{% elif risk == "Medium" %}
-
-<h2 style="color:orange;">🟠 MEDIUM RISK</h2>
-
-{% else %}
-
-<h2 style="color:green;">🟢 LOW RISK</h2>
-
-{% endif %}
-
-</div>
-
-
-<!-- Resource Graph -->
-
-<div class="card mt-4 p-4 shadow">
-
-<h4 class="text-center">📊 Resource Visualization</h4>
-
-<canvas id="resultChart"></canvas>
-
-</div>
-
-
-<!-- PDF Download -->
-
-<div class="text-center mt-3">
-
-<a href="/download_report" class="btn btn-success mt-3">
-Download Disaster Report (PDF)
-</a>
-
-</div>
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-
-var ctx = document.getElementById("resultChart");
-
-new Chart(ctx, {
-
-type: "bar",
-
-data: {
-
-labels: ["Shelters","Food Packets","Rescue Teams"],
-
-datasets: [{
-
-label: "Predicted Resources",
-
-data: [
-
-{{ prediction.shelters }},
-{{ prediction.food }},
-{{ prediction.rescue }}
-
-],
-
-backgroundColor: [
-
-"#3b82f6",
-"#22c55e",
-"#f59e0b"
-
-]
-
-}]
-
-},
-
-options:{
-responsive:true,
-plugins:{legend:{display:false}}
-}
-
-});
-
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create chart
+        var ctx = document.getElementById('resultChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Relief Shelters', 'Food Packets', 'Rescue Teams'],
+                datasets: [{
+                    label: 'Predicted Resources',
+                    data: [
+                        {{ prediction.shelters }},
+                        {{ prediction.food }},
+                        {{ prediction.rescue }}
+                    ],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#22c55e',
+                        '#f59e0b'
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 3,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw || 0;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+    });
+    
+    // Form validation and loading state
+    document.getElementById('predictionForm').addEventListener('submit', function(e) {
+        var form = this;
+        var submitBtn = document.getElementById('submitBtn');
+        var spinner = document.getElementById('submitSpinner');
+        
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+        }
+        
+        form.classList.add('was-validated');
+    });
+    
+    // Show download alert
+    function showDownloadAlert() {
+        // You can implement custom alert here
+        alert('Your report is being generated. Please wait...');
+    }
 </script>
-
 {% endif %}
 
-</div>
-
+<!-- Form Validation Script -->
+<script>
+    // Client-side form validation
+    (function() {
+        'use strict';
+        
+        var forms = document.querySelectorAll('.needs-validation');
+        
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+    
+    // Auto-format number inputs
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(this.step.includes('.') ? 2 : 0);
+            }
+        });
+    });
+</script>
 {% endblock %}

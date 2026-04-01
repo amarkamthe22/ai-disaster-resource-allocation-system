@@ -1,72 +1,887 @@
 {% extends "base.html" %}
 
+{% block title %}Disaster Simulation Map - AI Disaster Management{% endblock %}
+
 {% block content %}
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header text-center">
+                <h2 class="display-5 fw-bold mb-3">
+                    <i class="fas fa-map-marked-alt me-3 text-primary"></i>
+                    Disaster Simulation & Risk Mapping
+                </h2>
+                <p class="lead text-muted">Real-time disaster simulation and risk assessment across India</p>
+            </div>
+        </div>
+    </div>
 
-<div class="card p-4 shadow">
+    <!-- Simulation Controls -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-lg-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-sliders-h me-2 text-primary"></i>
+                                Simulation Controls
+                            </h5>
+                        </div>
+                        <div class="col-lg-2">
+                            <select class="form-select" id="disasterType">
+                                <option value="all">All Disasters</option>
+                                <option value="flood">Flood</option>
+                                <option value="cyclone">Cyclone</option>
+                                <option value="earthquake">Earthquake</option>
+                                <option value="drought">Drought</option>
+                                <option value="landslide">Landslide</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <select class="form-select" id="riskLevel">
+                                <option value="all">All Risk Levels</option>
+                                <option value="high">High Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="low">Low Risk</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <button class="btn btn-primary w-100" onclick="simulateDisaster()">
+                                <i class="fas fa-play me-2"></i>Run Simulation
+                            </button>
+                        </div>
+                        <div class="col-lg-2">
+                            <button class="btn btn-success w-100" onclick="resetMap()">
+                                <i class="fas fa-redo me-2"></i>Reset View
+                            </button>
+                        </div>
+                        <div class="col-lg-1">
+                            <button class="btn btn-info w-100" onclick="toggleHeatmap()" id="heatmapBtn">
+                                <i class="fas fa-fire"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h2 class="text-center mb-4">🗺 Disaster Simulation Map</h2>
+    <!-- Main Map Container -->
+    <div class="row g-4">
+        <!-- Map Section -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-2">
+                    <div id="map" style="height: 600px; border-radius: 15px;"></div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Click on markers for detailed disaster information. Zoom for more details.
+                </div>
+            </div>
+        </div>
 
-<div id="map"></div>
+        <!-- Information Panel -->
+        <div class="col-lg-4">
+            <!-- Stats Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="card border-0 shadow-sm bg-primary text-white">
+                        <div class="card-body">
+                            <h6 class="text-white-50">Active Disasters</h6>
+                            <h3 class="text-white mb-0" id="activeDisasters">12</h3>
+                            <small><span id="highRiskCount">4</span> high risk</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card border-0 shadow-sm bg-warning text-white">
+                        <div class="card-body">
+                            <h6 class="text-white-50">Affected Regions</h6>
+                            <h3 class="text-white mb-0" id="affectedRegions">8</h3>
+                            <small>states</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Disaster Info Tabs -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-transparent border-0">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#current">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Current
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#simulation">
+                                <i class="fas fa-chart-line me-2"></i>Simulation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#resources">
+                                <i class="fas fa-truck me-2"></i>Resources
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Current Disasters Tab -->
+                        <div class="tab-pane fade show active" id="current">
+                            <div class="disaster-list" style="max-height: 300px; overflow-y: auto;" id="disasterList">
+                                <!-- Dynamic content will be loaded here -->
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulation Tab -->
+                        <div class="tab-pane fade" id="simulation">
+                            <div class="simulation-controls">
+                                <div class="mb-3">
+                                    <label class="form-label">Simulation Speed</label>
+                                    <input type="range" class="form-range" min="1" max="10" value="5" id="simSpeed">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Slow</small>
+                                        <small>Fast</small>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Time Scale</label>
+                                    <select class="form-select" id="timeScale">
+                                        <option value="24">24 hours</option>
+                                        <option value="168">7 days</option>
+                                        <option value="720">30 days</option>
+                                        <option value="2160">90 days</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Simulation Type</label>
+                                    <select class="form-select" id="simType">
+                                        <option value="spread">Disaster Spread</option>
+                                        <option value="impact">Impact Assessment</option>
+                                        <option value="resources">Resource Allocation</option>
+                                    </select>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary" onclick="startSimulation()">
+                                        <i class="fas fa-play me-2"></i>Start Simulation
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="stopSimulation()">
+                                        <i class="fas fa-stop me-2"></i>Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resources Tab -->
+                        <div class="tab-pane fade" id="resources">
+                            <div class="resource-list" id="resourceList">
+                                <!-- Dynamic content will be loaded here -->
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="card border-0 shadow-lg mt-3">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="fas fa-cloud-sun me-2 text-primary"></i>
+                        Weather Conditions
+                    </h6>
+                    <div class="weather-widget" id="weatherWidget">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                            <span class="ms-2">Loading weather data...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disaster Legend -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div>
+                            <span class="me-4">
+                                <span class="risk-dot high-risk me-1"></span> High Risk
+                            </span>
+                            <span class="me-4">
+                                <span class="risk-dot medium-risk me-1"></span> Medium Risk
+                            </span>
+                            <span class="me-4">
+                                <span class="risk-dot low-risk me-1"></span> Low Risk
+                            </span>
+                        </div>
+                        <div>
+                            <span class="me-3">
+                                <i class="fas fa-water text-primary me-1"></i> Flood
+                            </span>
+                            <span class="me-3">
+                                <i class="fas fa-wind text-info me-1"></i> Cyclone
+                            </span>
+                            <span class="me-3">
+                                <i class="fas fa-mountain text-secondary me-1"></i> Earthquake
+                            </span>
+                            <span class="me-3">
+                                <i class="fas fa-sun text-warning me-1"></i> Drought
+                            </span>
+                            <span class="me-3">
+                                <i class="fas fa-mountain text-danger me-1"></i> Landslide
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Leaflet CSS (only essential) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-<!-- Leaflet CSS -->
+<!-- Custom Styles -->
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+        border-radius: 15px;
+        z-index: 1;
+    }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    .risk-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
 
-<!-- Leaflet JS -->
+    .high-risk { background: linear-gradient(135deg, #dc3545, #b02a37); }
+    .medium-risk { background: linear-gradient(135deg, #ffc107, #cc9a06); }
+    .low-risk { background: linear-gradient(135deg, #28a745, #1e7e34); }
 
+    .disaster-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+        cursor: pointer;
+    }
+
+    .disaster-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .disaster-item.high-risk { border-left-color: #dc3545; }
+    .disaster-item.medium-risk { border-left-color: #ffc107; }
+    .disaster-item.low-risk { border-left-color: #28a745; }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: var(--text-dark);
+        font-weight: 500;
+        padding: 10px 15px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .progress {
+        border-radius: 10px;
+        height: 8px;
+    }
+
+    .custom-marker {
+        background: transparent;
+        border: none;
+    }
+
+    .marker-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Dark mode adjustments */
+    body.dark-mode .disaster-item {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white;
+    }
+
+    body.dark-mode .bg-light {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    @media (max-width: 768px) {
+        #map {
+            height: 400px;
+        }
+    }
+</style>
+
+<!-- Load Leaflet first -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-
+<!-- Main Map Script -->
 <script>
+// Disaster data
+const disasterData = [
+    {
+        name: "Mumbai",
+        coords: [19.0760, 72.8777],
+        type: "flood",
+        risk: "high",
+        severity: 85,
+        affected: 2300,
+        description: "Heavy rainfall causing urban flooding",
+        resources: "50 rescue teams deployed",
+        icon: "🌊",
+        time: "5 min ago"
+    },
+    {
+        name: "Odisha Coast",
+        coords: [20.2961, 85.8245],
+        type: "cyclone",
+        risk: "medium",
+        severity: 65,
+        affected: 5100,
+        description: "Cyclonic storm approaching coastline",
+        resources: "100 shelters activated",
+        icon: "🌪",
+        time: "12 min ago"
+    },
+    {
+        name: "Uttarakhand",
+        coords: [30.3165, 78.0322],
+        type: "earthquake",
+        risk: "low",
+        severity: 35,
+        affected: 890,
+        description: "Minor tremors felt in region",
+        resources: "Assessment ongoing",
+        icon: "🌍",
+        time: "1 hour ago"
+    },
+    {
+        name: "Madhya Pradesh",
+        coords: [23.2599, 77.4126],
+        type: "drought",
+        risk: "high",
+        severity: 90,
+        affected: 3400,
+        description: "Severe water shortage",
+        resources: "Water tankers deployed",
+        icon: "🔥",
+        time: "30 min ago"
+    },
+    {
+        name: "Chennai",
+        coords: [13.0827, 80.2707],
+        type: "flood",
+        risk: "medium",
+        severity: 55,
+        affected: 1200,
+        description: "Water logging in low-lying areas",
+        resources: "Pumps deployed",
+        icon: "🌊",
+        time: "45 min ago"
+    },
+    {
+        name: "Guwahati",
+        coords: [26.1445, 91.7362],
+        type: "landslide",
+        risk: "high",
+        severity: 75,
+        affected: 800,
+        description: "Landslide due to heavy rain",
+        resources: "NDRF teams deployed",
+        icon: "⛰",
+        time: "20 min ago"
+    },
+    {
+        name: "Kerala",
+        coords: [10.8505, 76.2711],
+        type: "flood",
+        risk: "high",
+        severity: 95,
+        affected: 8900,
+        description: "Severe flooding in multiple districts",
+        resources: "Army deployed",
+        icon: "🌊",
+        time: "10 min ago"
+    },
+    {
+        name: "Gujarat",
+        coords: [23.0225, 72.5714],
+        type: "cyclone",
+        risk: "medium",
+        severity: 60,
+        affected: 2100,
+        description: "Cyclonic storm warning",
+        resources: "Evacuation in progress",
+        icon: "🌪",
+        time: "25 min ago"
+    }
+];
 
-/* Map Setup */
+// Global variables
+let map;
+let markers = [];
+let heatmapLayer = null;
+let simulationInterval = null;
+let simulationActive = false;
 
-var map = L.map('map').setView([22.9734, 78.6569], 5);
+// Initialize map when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMap();
+    loadDisasterList();
+    loadResourceData();
+    loadWeatherData();
+    updateStats();
+});
 
+function initializeMap() {
+    try {
+        // Initialize map
+        map = L.map('map').setView([22.9734, 78.6569], 5);
 
-/* Map Layer */
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Add scale control
+        L.control.scale({ imperial: false, metric: true }).addTo(map);
 
-attribution: '© OpenStreetMap'
+        // Add markers
+        addMarkers();
 
-}).addTo(map);
+        console.log('Map initialized successfully');
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        showNotification('Error loading map. Please refresh the page.', 'danger');
+    }
+}
 
+function addMarkers() {
+    // Clear existing markers
+    markers.forEach(marker => map.removeLayer(marker));
+    markers = [];
 
+    disasterData.forEach(disaster => {
+        // Get color based on risk
+        const color = disaster.risk === 'high' ? '#dc3545' : 
+                     disaster.risk === 'medium' ? '#ffc107' : '#28a745';
 
-/* Flood Marker */
+        // Create custom marker
+        const markerHtml = `
+            <div style="
+                background: ${color};
+                width: ${disaster.risk === 'high' ? '30' : '25'}px;
+                height: ${disaster.risk === 'high' ? '30' : '25'}px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 16px;
+                border: 2px solid white;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                ${disaster.risk === 'high' ? 'animation: pulse 2s infinite;' : ''}
+            ">${disaster.icon}</div>
+        `;
 
-L.marker([19.0760,72.8777]).addTo(map)
+        const customIcon = L.divIcon({
+            html: markerHtml,
+            className: 'custom-marker',
+            iconSize: [disaster.risk === 'high' ? 30 : 25, disaster.risk === 'high' ? 30 : 25],
+            popupAnchor: [0, -15]
+        });
 
-.bindPopup("🌊 Flood Risk Area - Mumbai");
+        const marker = L.marker(disaster.coords, { icon: customIcon })
+            .bindPopup(createPopupContent(disaster))
+            .addTo(map);
 
+        markers.push(marker);
+    });
+}
 
+function createPopupContent(disaster) {
+    const riskColor = disaster.risk === 'high' ? '#dc3545' : 
+                     disaster.risk === 'medium' ? '#ffc107' : '#28a745';
 
-/* Cyclone Marker */
+    return `
+        <div style="min-width: 250px;">
+            <h5 style="margin-bottom: 10px; color: ${riskColor};">
+                ${disaster.icon} ${disaster.name}
+            </h5>
+            <div style="margin-bottom: 10px;">
+                <span style="background: ${riskColor}; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px;">
+                    ${disaster.risk.toUpperCase()} RISK
+                </span>
+                <span style="background: #6c757d; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px; margin-left: 5px;">
+                    Severity: ${disaster.severity}%
+                </span>
+            </div>
+            <p style="margin-bottom: 5px;"><strong>Type:</strong> ${disaster.type}</p>
+            <p style="margin-bottom: 5px;"><strong>Affected:</strong> ${disaster.affected.toLocaleString()} people</p>
+            <p style="margin-bottom: 5px;"><strong>Status:</strong> ${disaster.description}</p>
+            <p style="margin-bottom: 5px;"><strong>Resources:</strong> ${disaster.resources}</p>
+            <p style="margin-bottom: 0;"><strong>Updated:</strong> ${disaster.time}</p>
+        </div>
+    `;
+}
 
-L.marker([20.2961,85.8245]).addTo(map)
+function loadDisasterList() {
+    const disasterList = document.getElementById('disasterList');
+    
+    let html = '';
+    disasterData.forEach(disaster => {
+        const riskColor = disaster.risk === 'high' ? 'danger' : 
+                         disaster.risk === 'medium' ? 'warning' : 'success';
+        
+        html += `
+            <div class="disaster-item p-3 mb-2 bg-light rounded ${disaster.risk}-risk" 
+                 onclick="flyToLocation([${disaster.coords}], '${disaster.name}')">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <span class="badge bg-${riskColor} mb-2">${disaster.risk.toUpperCase()} Risk</span>
+                        <h6 class="mb-1">${disaster.icon} ${disaster.name}</h6>
+                        <small class="text-muted">${disaster.type} • Updated ${disaster.time}</small>
+                    </div>
+                    <div class="text-end">
+                        <h5 class="mb-0">${(disaster.affected/1000).toFixed(1)}k</h5>
+                        <small>affected</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    disasterList.innerHTML = html;
+}
 
-.bindPopup("🌪 Cyclone Risk - Odisha");
+function loadResourceData() {
+    const resourceList = document.getElementById('resourceList');
+    
+    resourceList.innerHTML = `
+        <div class="mb-3">
+            <div class="d-flex justify-content-between">
+                <span>Rescue Teams</span>
+                <span class="badge bg-success">Available</span>
+            </div>
+            <div class="progress mt-1">
+                <div class="progress-bar bg-success" style="width: 75%"></div>
+            </div>
+            <small>45 of 60 deployed</small>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between">
+                <span>Medical Kits</span>
+                <span class="badge bg-warning">Limited</span>
+            </div>
+            <div class="progress mt-1">
+                <div class="progress-bar bg-warning" style="width: 30%"></div>
+            </div>
+            <small>300 of 1000 remaining</small>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between">
+                <span>Food Packets</span>
+                <span class="badge bg-info">Sufficient</span>
+            </div>
+            <div class="progress mt-1">
+                <div class="progress-bar bg-info" style="width: 60%"></div>
+            </div>
+            <small>6000 of 10000 remaining</small>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between">
+                <span>Shelters</span>
+                <span class="badge bg-danger">Critical</span>
+            </div>
+            <div class="progress mt-1">
+                <div class="progress-bar bg-danger" style="width: 15%"></div>
+            </div>
+            <small>12 of 80 available</small>
+        </div>
+    `;
+}
 
+function loadWeatherData() {
+    const weatherWidget = document.getElementById('weatherWidget');
+    
+    weatherWidget.innerHTML = `
+        <div class="row text-center">
+            <div class="col-4">
+                <i class="fas fa-temperature-high fa-2x text-danger"></i>
+                <h6 class="mt-2">32°C</h6>
+                <small>Temperature</small>
+            </div>
+            <div class="col-4">
+                <i class="fas fa-wind fa-2x text-info"></i>
+                <h6 class="mt-2">15 km/h</h6>
+                <small>Wind Speed</small>
+            </div>
+            <div class="col-4">
+                <i class="fas fa-tint fa-2x text-primary"></i>
+                <h6 class="mt-2">65%</h6>
+                <small>Humidity</small>
+            </div>
+        </div>
+    `;
+}
 
+function updateStats() {
+    const activeDisasters = disasterData.length;
+    const highRisk = disasterData.filter(d => d.risk === 'high').length;
+    const affectedRegions = new Set(disasterData.map(d => d.name.split(' ').pop())).size;
+    
+    document.getElementById('activeDisasters').textContent = activeDisasters;
+    document.getElementById('highRiskCount').textContent = highRisk;
+    document.getElementById('affectedRegions').textContent = affectedRegions;
+}
 
-/* Earthquake Marker */
+// Filter markers
+document.getElementById('disasterType').addEventListener('change', filterMarkers);
+document.getElementById('riskLevel').addEventListener('change', filterMarkers);
 
-L.marker([30.3165,78.0322]).addTo(map)
+function filterMarkers() {
+    const type = document.getElementById('disasterType').value;
+    const risk = document.getElementById('riskLevel').value;
+    
+    // Clear all markers
+    markers.forEach(marker => map.removeLayer(marker));
+    
+    // Filter and add matching markers
+    disasterData.forEach(disaster => {
+        if ((type === 'all' || disaster.type === type) && 
+            (risk === 'all' || disaster.risk === risk)) {
+            
+            const color = disaster.risk === 'high' ? '#dc3545' : 
+                         disaster.risk === 'medium' ? '#ffc107' : '#28a745';
+            
+            const markerHtml = `
+                <div style="
+                    background: ${color};
+                    width: ${disaster.risk === 'high' ? '30' : '25'}px;
+                    height: ${disaster.risk === 'high' ? '30' : '25'}px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 16px;
+                    border: 2px solid white;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                ">${disaster.icon}</div>
+            `;
+            
+            const customIcon = L.divIcon({
+                html: markerHtml,
+                className: 'custom-marker',
+                iconSize: [disaster.risk === 'high' ? 30 : 25, disaster.risk === 'high' ? 30 : 25],
+                popupAnchor: [0, -15]
+            });
+            
+            const marker = L.marker(disaster.coords, { icon: customIcon })
+                .bindPopup(createPopupContent(disaster))
+                .addTo(map);
+        }
+    });
+}
 
-.bindPopup("🌍 Earthquake Risk - Uttarakhand");
+function flyToLocation(coords, name) {
+    map.flyTo(coords, 10, {
+        animate: true,
+        duration: 1.5
+    });
+    setTimeout(() => {
+        map.openPopup(name);
+    }, 1500);
+}
 
+function toggleHeatmap() {
+    if (!heatmapLayer) {
+        // Create simple heatmap points
+        const heatPoints = disasterData.map(d => [d.coords[0], d.coords[1], d.severity / 100]);
+        
+        heatmapLayer = L.heatLayer(heatPoints, {
+            radius: 40,
+            blur: 25,
+            maxZoom: 10,
+            gradient: {
+                0.2: '#98fb98',
+                0.4: '#ffff00',
+                0.6: '#ffa500',
+                0.8: '#ff4500',
+                1.0: '#ff0000'
+            }
+        }).addTo(map);
+        
+        document.getElementById('heatmapBtn').classList.add('btn-success');
+        document.getElementById('heatmapBtn').classList.remove('btn-info');
+    } else {
+        map.removeLayer(heatmapLayer);
+        heatmapLayer = null;
+        document.getElementById('heatmapBtn').classList.add('btn-info');
+        document.getElementById('heatmapBtn').classList.remove('btn-success');
+    }
+}
 
+function simulateDisaster() {
+    if (simulationActive) {
+        stopSimulation();
+        return;
+    }
+    
+    simulationActive = true;
+    const speed = document.getElementById('simSpeed').value;
+    const timeScale = document.getElementById('timeScale').value;
+    const simType = document.getElementById('simType').value;
+    
+    showNotification(`Running ${simType} simulation at ${speed}x speed for ${timeScale} hours`, 'info');
+    
+    // Animate markers
+    markers.forEach(marker => {
+        const element = marker.getElement();
+        if (element) {
+            element.style.animation = 'pulse 1s infinite';
+        }
+    });
+    
+    // Simulate changing data
+    let step = 0;
+    simulationInterval = setInterval(() => {
+        step++;
+        
+        // Update severity randomly to simulate change
+        markers.forEach((marker, index) => {
+            if (Math.random() > 0.7) {
+                const popup = marker.getPopup();
+                if (popup) {
+                    // Update popup content
+                }
+            }
+        });
+        
+        if (step > 50) {
+            stopSimulation();
+        }
+    }, 1000 / speed);
+}
 
-/* Drought Marker */
+function stopSimulation() {
+    simulationActive = false;
+    if (simulationInterval) {
+        clearInterval(simulationInterval);
+        simulationInterval = null;
+    }
+    
+    markers.forEach(marker => {
+        const element = marker.getElement();
+        if (element) {
+            element.style.animation = '';
+        }
+    });
+    
+    showNotification('Simulation stopped', 'warning');
+}
 
-L.marker([23.2599,77.4126]).addTo(map)
+function resetMap() {
+    map.setView([22.9734, 78.6569], 5);
+    stopSimulation();
+    showNotification('Map view reset', 'success');
+}
 
-.bindPopup("🔥 Drought Risk - Madhya Pradesh");
+function showNotification(message, type) {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.style.maxWidth = '300px';
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                           type === 'warning' ? 'exclamation-triangle' : 
+                           'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
 
+// Start simulation from tab
+function startSimulation() {
+    simulateDisaster();
+}
+
+// Add CSS animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+`;
+document.head.appendChild(style);
+
+// Error handling
+window.addEventListener('error', function(e) {
+    console.error('Resource error:', e);
+    // Don't show error for every resource, only critical ones
+    if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+        if (!e.target.src || !e.target.src.includes('leaflet')) {
+            showNotification('Some resources failed to load', 'warning');
+        }
+    }
+});
 </script>
 
+<!-- Load heatmap plugin after main script (optional) -->
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 {% endblock %}
